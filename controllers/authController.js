@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
 
-exports.register = async (req, res) => {
+exports.register = async (req, res, next) => {
     try {
         const { name, email, password, confirmPassword } = req.body;
 
@@ -48,7 +48,7 @@ exports.register = async (req, res) => {
             }
         });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        next(err);
     }
 };
 const generateToken = (id, role) => {
@@ -58,7 +58,7 @@ const generateToken = (id, role) => {
 };
 
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
 
   try {
     const { email, password } = req.body;
@@ -107,24 +107,19 @@ exports.login = async (req, res) => {
 
 
   } catch (err) {
-
-    res.status(500).json({ success: false, message: err.message });
-
+    next(err);
   }
-
 };
 
-exports.getMe = async (req, res) => {
+exports.getMe = async (req, res, next) => {
 
   try {
-
-
     const user = await User.findById(req.user.id);
     res.status(200).json({
       success: true,
       user
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    next(err);
   }
 };
