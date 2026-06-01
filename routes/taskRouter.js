@@ -10,8 +10,8 @@ const {
   deleteTask
 } = require('../controllers/taskController');
 
-router.get('/', getAllTasks);
-router.get('/:id', getTask);
+router.get('/', protect, getAllTasks);
+router.get('/:id', protect, getTask);
 router.post('/', protect, createTask);
 router.put('/:id', protect, updateTask);
 router.delete('/:id', protect, restrictTo('admin'), deleteTask);

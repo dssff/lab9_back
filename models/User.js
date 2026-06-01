@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Password is required'],
         minlength: [8, 'Password must be at least 8 characters long'],
-        select: false  // do not return in queries
+        select: false  
     },
         role: {
             type: String,
@@ -29,6 +29,17 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+});
+const bcrypt = require('bcryptjs');
+
+userSchema.pre('save', async function(next) {
+
+  if (!this.isModified('password')) return next();
+
+  this.password = await bcrypt.hash(this.password, 10);
+
+  next();
+
 });
 
 module.exports = mongoose.model('User', userSchema);
