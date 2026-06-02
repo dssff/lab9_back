@@ -6,6 +6,7 @@ const taskRoutes = require('./routes/taskRouter');
 const AppError = require('./utils/AppError');
 
 const app = express();
+app.use(express.static('public'));
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
@@ -15,8 +16,20 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  const message = err.isOperational ? err.message : 'Внутрішня помилка сервера';
+  let error = err;
+
+  if (err.name === 'ValidationError') {
+    const messages = Object.values(err.errors).map(e => e.message).join('. ');
+    error = new AppError(messages, 400);
+  }
+
+  if (err.code && err.code === 11000) {
+    const field = Object.keys(err.keyValue || {}).join(', ');
+    error = new AppError(`Дублювання значення для поля: ${field}`, 409);
+  }
+
+  const statusCode = error.statusCode || 500;
+  const message = error.isOperational ? error.message : 'Внутрішня помилка сервера';
   res.status(statusCode).json({
     success: false,
     message,
@@ -25,7 +38,6 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('MongoDB connected');
