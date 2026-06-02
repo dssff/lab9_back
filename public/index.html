@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+<html lang='uk'>
+
+<head>
+
+<meta charset='UTF-8'>
+
+<title>FilmReview</title>
+
+</head>
+
+<body>
+
+<h1>Завдання</h1>
+
+<a href='/login.html'>Увійти</a> |
+
+<a href='/register.html'>Реєстрація</a> |
+
+<a href='/create.html'>Додати завдання</a>
+
+<button id='logoutBtn'>Вийти</button>
+
+<ul id='movieList'></ul>
+
+<script>
+
+
+async function loadTasks() {
+	const response = await fetch('/api/tasks', {
+		headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+	});
+
+	const data = await response.json().catch(() => null);
+	const list = document.getElementById('movieList');
+
+	if (!response.ok) {
+		if (response.status === 401) {
+			localStorage.removeItem('token');
+			window.location.href = '/login.html';
+			return;
+		}
+		list.innerHTML = `<li>Помилка завантаження задач: ${data && data.message ? data.message : 'Невідома помилка'}</li>`;
+		return;
+	}
+
+	const tasks = (data && data.data) ? data.data : [];
+	if (!tasks.length) {
+		list.innerHTML = '<li>Завдань не знайдено</li>';
+		return;
+	}
+
+	list.innerHTML = tasks.map(t => `<li>${t.title} — ${t.status}</li>`).join('');
+
+}
+
+document.getElementById('logoutBtn')
+
+.addEventListener('click', () => {
+
+localStorage.removeItem('token');
+
+window.location.href = '/login.html';
+
+});
+
+loadTasks();
+
+</script>
+
+</body>
+
+</html>

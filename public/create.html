@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<html lang='uk'>
+
+<head>
+
+<meta charset='UTF-8'>
+
+<title>Додати завдання</title>
+
+</head>
+
+<body>
+
+<h1>Додати завдання</h1>
+
+<form id='createForm'>
+
+<input type='text' id='title' placeholder='Заголовок' required>
+
+<textarea id='description' placeholder='Опис'></textarea>
+
+<select id='status'>
+
+<option value='pending'>Очікує</option>
+
+<option value='in-progress'>В процесі</option>
+
+<option value='completed'>Завершено</option>
+
+</select>
+
+<select id='priority'>
+
+<option value='low'>Низька пріоритетність</option>
+
+<option value='medium' selected>Середня пріоритетність</option>
+
+<option value='high'>Висока пріоритетність</option>
+
+</select>
+
+<input type='date' id='dueDate'>
+
+<button type='submit'>Додати завдання</button>
+
+</form>
+
+<p id='message'></p>
+
+<script>
+
+document.getElementById('createForm')
+
+.addEventListener('submit', async (e) => {
+
+e.preventDefault();
+
+const token = localStorage.getItem('token');
+
+if (!token) {
+
+window.location.href = '/login.html';
+
+return;
+
+}
+
+const body = {
+
+title: document.getElementById('title').value,
+
+description: document.getElementById('description').value,
+
+status: document.getElementById('status').value,
+
+priority: document.getElementById('priority').value,
+
+dueDate: document.getElementById('dueDate').value
+
+};
+
+const response = await fetch('/api/tasks', {
+
+method: 'POST',
+
+headers: {
+
+'Content-Type': 'application/json',
+
+'Authorization': `Bearer ${token}`
+
+},
+
+body: JSON.stringify(body)
+
+});
+
+const data = await response.json();
+
+if (!response.ok) {
+
+document.getElementById('message').textContent = data.message;
+
+return;
+
+}
+
+document.getElementById('message').textContent = 'Завдання додано!';
+
+setTimeout(() => window.location.href = '/index.html', 1000);
+
+});
+
+</script>
+
+</body>
+
+</html>
