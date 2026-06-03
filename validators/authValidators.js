@@ -16,9 +16,9 @@ exports.registerSchema = Joi.object({
             'any.required': 'Email обов\'язковий'
         }),
 
-    password: Joi.string().min(6).required()
+    password: Joi.string().min(8).required()
         .messages({
-            'string.min': 'Пароль має містити мінімум 6 символів',
+            'string.min': 'Пароль має містити мінімум 8 символів',
             'string.empty': 'Пароль не може бути порожнім',
             'any.required': 'Пароль обов\'язковий'
         }),

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang='uk'>
+
+<head>
+  <meta charset='UTF-8'>
+  <title>Додати коментар</title>
+  <style>
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field-error {
+      color: red;
+      font-size: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    #serverErrors p {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Додати коментар до завдання</h1>
+  <div id='serverErrors'></div>
+  <form id='commentForm'>
+    <div class='field'>
+      <label for='text'>Коментар:</label>
+      <textarea id='text' rows='4' placeholder='Мінімум 3 символи' required></textarea>
+      <span class='field-error' id='textError'></span>
+    </div>
+    <button type='submit' id='submitBtn'>Надіслати</button>
+  </form>
+
+  <script>
+    const API_URL = 'http://127.0.0.1:3000';
+
+    const params = new URLSearchParams(window.location.search);
+    const taskId = params.get('taskId');
+
+    if (!taskId) {
+      window.location.href = 'index.html';
+    }
+
+    const textInput = document.getElementById('text');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function validateText() {
+      if (textInput.value.trim().length < 3) {
+        document.getElementById('textError').textContent = 'Мінімум 3 символи';
+        return false;
+      }
+      document.getElementById('textError').textContent = '';
+      return true;
+    }
+
+    textInput.addEventListener('input', validateText);
+
+    document.getElementById('commentForm')
+      .addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!validateText()) return;
+
+        document.getElementById('serverErrors').innerHTML = '';
+
+        try {
+          const response = await fetch(
+            `${API_URL}/api/tasks/${taskId}/comments`,
+            {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                text: textInput.value
+              })
+            }
+          );
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            const container = document.getElementById('serverErrors');
+            const msgs = data.errors || [data.message];
+            container.innerHTML = msgs.map(m => `<p>${m}</p>`).join('');
+            return;
+          }
+
+          window.location.href = 'index.html';
+        } catch (error) {
+          const container = document.getElementById('serverErrors');
+          container.innerHTML = `<p>Помилка з'єднання з сервером: ${error.message}</p>`;
+        }
+      });
+  </script>
+</body>
+
+</html>

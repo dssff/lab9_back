@@ -44,6 +44,8 @@
             <h3>${t.title}</h3>
             <p>${t.description}</p>
             <small>${t.priority} — ${t.status}</small>
+            <br>
+            <a href="./comment.html?taskId=${t._id}">Додати коментар</a>
         </li>`
 			).join('');
 		}
