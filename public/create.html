@@ -1,118 +1,91 @@
 <!DOCTYPE html>
-
 <html lang='uk'>
 
 <head>
-
-<meta charset='UTF-8'>
-
-<title>Додати завдання</title>
-
+    <meta charset='UTF-8'>
+    <title>Додати задачу</title>
 </head>
 
 <body>
 
-<h1>Додати завдання</h1>
+    <h1>Додати задачу</h1>
 
-<form id='createForm'>
+    <form id='createForm'>
 
-<input type='text' id='title' placeholder='Заголовок' required>
+        <input type='text' id='title' placeholder='Заголовок' required>
 
-<textarea id='description' placeholder='Опис'></textarea>
+        <textarea id='description' placeholder='Опис'></textarea>
 
-<select id='status'>
+        <select id='status'>
 
-<option value='pending'>Очікує</option>
+            <option value='pending'>Очікує</option>
 
-<option value='in-progress'>В процесі</option>
+            <option value='in-progress'>В процесі</option>
 
-<option value='completed'>Завершено</option>
+            <option value='completed'>Завершено</option>
 
-</select>
+        </select>
 
-<select id='priority'>
+        <select id='priority'>
 
-<option value='low'>Низька пріоритетність</option>
+            <option value='low'>Низька пріоритетність</option>
 
-<option value='medium' selected>Середня пріоритетність</option>
+            <option value='medium' selected>Середня пріоритетність</option>
 
-<option value='high'>Висока пріоритетність</option>
+            <option value='high'>Висока пріоритетність</option>
 
-</select>
+        </select>
 
-<input type='date' id='dueDate'>
+        <input type='date' id='dueDate'>
 
-<button type='submit'>Додати завдання</button>
+        <button type='submit'>Додати завдання</button>
 
-</form>
+    </form>
 
-<p id='message'></p>
+    <p id='message'></p>
 
-<script>
+    <script>
 
-document.getElementById('createForm')
+        const API_URL = 'http://127.0.0.1:3000';
 
-.addEventListener('submit', async (e) => {
+        document.getElementById('createForm')
+            .addEventListener('submit', async (e) => {
 
-e.preventDefault();
+                e.preventDefault();
 
-const token = localStorage.getItem('token');
+                const body = {
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value,
+                    status: document.getElementById('status').value,
+                    priority: document.getElementById('priority').value,
+                    dueDate: document.getElementById('dueDate').value
+                };
 
-if (!token) {
+                const response = await fetch(`${API_URL}/api/tasks`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
 
-window.location.href = '/login.html';
+                const data = await response.json();
 
-return;
+                if (!response.ok) {
+                    document.getElementById('message').textContent = data.message;
+                    return;
+                }
 
-}
+                document.getElementById('message').textContent = 'Новину додано!';
 
-const body = {
+                setTimeout(() => {
+                    window.location.href = window.location.href.replace('create.html', 'index.html');
+                }, 1000);
 
-title: document.getElementById('title').value,
+            });
 
-description: document.getElementById('description').value,
-
-status: document.getElementById('status').value,
-
-priority: document.getElementById('priority').value,
-
-dueDate: document.getElementById('dueDate').value
-
-};
-
-const response = await fetch('/api/tasks', {
-
-method: 'POST',
-
-headers: {
-
-'Content-Type': 'application/json',
-
-'Authorization': `Bearer ${token}`
-
-},
-
-body: JSON.stringify(body)
-
-});
-
-const data = await response.json();
-
-if (!response.ok) {
-
-document.getElementById('message').textContent = data.message;
-
-return;
-
-}
-
-document.getElementById('message').textContent = 'Завдання додано!';
-
-setTimeout(() => window.location.href = '/index.html', 1000);
-
-});
-
-</script>
+    </script>
 
 </body>
 
