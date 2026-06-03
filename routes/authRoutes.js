@@ -4,8 +4,12 @@ const router = express.Router();
 const { register, login, getMe, logout } = require('../controllers/authController');
 const protect = require('../middleware/protect');
 
-router.post('/register', register);
-router.post('/login', login);
+const validate = require('../middleware/validate');
+
+const { registerSchema, loginSchema } = require('../validators/authValidators');
+router.post('/register', validate(registerSchema), register);
+
+router.post('/login', validate(loginSchema), login);
 
 
 router.post('/logout', protect, logout);

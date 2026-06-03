@@ -11,7 +11,6 @@ const AppError = require('./utils/AppError');
 
 const app = express();
 
-/* CORS */
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5500',
   credentials: true
@@ -23,12 +22,10 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 
-/* 404 */
 app.use((req, res, next) => {
   next(new AppError('Маршрут не знайдено', 404));
 });
 
-/* error handler */
 app.use((err, req, res, next) => {
   res.status(err.statusCode || 500).json({
     success: false,
