@@ -1,73 +1,67 @@
 <!DOCTYPE html>
-
 <html lang='uk'>
 
 <head>
-
-<meta charset='UTF-8'>
-
-<title>FilmReview</title>
-
+	<meta charset='UTF-8'>
+	<title>todo-task-system</title>
 </head>
 
 <body>
 
-<h1>Завдання</h1>
+	<h1>Задачі</h1>
 
-<a href='/login.html'>Увійти</a> |
+	<a href='./login.html'>Увійти</a> |
+	<a href='./register.html'>Реєстрація</a> |
+	<a href='./create.html'>Додати завдання</a>
 
-<a href='/register.html'>Реєстрація</a> |
+	<button id='logoutBtn'>Вийти</button>
 
-<a href='/create.html'>Додати завдання</a>
+	<ul id='taskList'></ul>
 
-<button id='logoutBtn'>Вийти</button>
+	<script>
 
-<ul id='movieList'></ul>
+		const API_URL = 'http://127.0.0.1:3000';
 
-<script>
+		async function loadTasks() {
 
+			const response = await fetch(`${API_URL}/api/tasks`, {
+				credentials: 'include'
+			});
 
-async function loadTasks() {
-	const response = await fetch('/api/tasks', {
-		headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-	});
+			const data = await response.json();
 
-	const data = await response.json().catch(() => null);
-	const list = document.getElementById('movieList');
+			const list = document.getElementById('taskList');
 
-	if (!response.ok) {
-		if (response.status === 401) {
-			localStorage.removeItem('token');
-			window.location.href = '/login.html';
-			return;
+			if (!response.ok) {
+				list.innerHTML = `<li>${data.message || 'Помилка'}</li>`;
+				return;
+			}
+
+			const tasks = data.data || data;
+
+			list.innerHTML = tasks.map(t =>
+				`<li>
+            <h3>${t.title}</h3>
+            <p>${t.description}</p>
+            <small>${t.priority} — ${t.status}</small>
+        </li>`
+			).join('');
 		}
-		list.innerHTML = `<li>Помилка завантаження задач: ${data && data.message ? data.message : 'Невідома помилка'}</li>`;
-		return;
-	}
 
-	const tasks = (data && data.data) ? data.data : [];
-	if (!tasks.length) {
-		list.innerHTML = '<li>Завдань не знайдено</li>';
-		return;
-	}
+		document.getElementById('logoutBtn')
+			.addEventListener('click', async () => {
 
-	list.innerHTML = tasks.map(t => `<li>${t.title} — ${t.status}</li>`).join('');
+				await fetch(`${API_URL}/api/auth/logout`, {
+					method: 'POST',
+					credentials: 'include'
+				});
 
-}
+				window.location.href = './login.html';
+			});
 
-document.getElementById('logoutBtn')
+		loadTasks();
 
-.addEventListener('click', () => {
-
-localStorage.removeItem('token');
-
-window.location.href = '/login.html';
-
-});
-
-loadTasks();
-
-</script>
+	</script>
 
 </body>
 

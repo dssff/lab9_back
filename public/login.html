@@ -4,71 +4,60 @@
 
 <head>
 
-<meta charset='UTF-8'>
+  <meta charset='UTF-8'>
 
-<title>Вхід</title>
+  <title>Вхід</title>
 
 </head>
 
 <body>
 
-<h1>Вхід</h1>
+  <h1>Вхід</h1>
 
-<form id='loginForm'>
+  <form id='loginForm'>
 
-<input type='email' id='email' placeholder='Email' required>
+    <input type='email' id='email' placeholder='Email' required>
 
-<input type='password' id='password' placeholder='Пароль' required>
+    <input type='password' id='password' placeholder='Пароль' required>
 
-<button type='submit'>Увійти</button>
+    <button type='submit'>Увійти</button>
 
-</form>
+  </form>
 
-<p id='message'></p>
+  <p id='message'></p>
 
-<script>
+  <script>
 
-document.getElementById('loginForm')
+    const API_URL = 'http://127.0.0.1:3000';
 
-.addEventListener('submit', async (e) => {
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-e.preventDefault();
+      const body = {
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value
+      };
 
-const body = {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(body)
+      });
 
-email: document.getElementById('email').value,
+      const data = await res.json();
 
-password: document.getElementById('password').value
+      if (!res.ok) {
+        document.getElementById('message').textContent = data.message;
+        return;
+      }
 
-};
+      window.location.href = window.location.href.replace('login.html', 'index.html');
+    });
 
-const response = await fetch('/api/auth/login', {
-
-method: 'POST',
-
-headers: { 'Content-Type': 'application/json' },
-
-body: JSON.stringify(body)
-
-});
-
-const data = await response.json();
-
-if (!response.ok) {
-
-document.getElementById('message').textContent = data.message;
-
-return;
-
-}
-
-localStorage.setItem('token', data.token);
-
-window.location.href = '/index.html';
-
-});
-
-</script>
+  </script>
 
 </body>
 
